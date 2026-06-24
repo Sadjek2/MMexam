@@ -1,3 +1,5 @@
+
+
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -66,6 +68,10 @@ export default function TasksPage() {
   const [status, setStatus] = useState<'All' | TaskStatus>('All')
   const [sortBy, setSortBy] = useState<'priority-desc' | 'priority-asc' | 'title-asc'>('priority-desc')
   const [items, setItems] = useState<Task[]>(() => loadTasks())
+    const handleDelete = (id: number) => {
+    setItems((prev) => prev.filter((task) => task.id !== id))
+  }
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
 
   useEffect(() => {
     localStorage.setItem('taskpilot-tasks', JSON.stringify(items))
@@ -75,6 +81,19 @@ export default function TasksPage() {
   useEffect(() => {
     localStorage.setItem('taskpilot-tasks', JSON.stringify(items))
   }, [items])
+
+  
+const handleEdit = (task: Task) => {
+  setEditingTaskId(task.id)
+  form.reset({
+    title: task.title,
+    category: task.category,
+    status: task.status,
+    priority: task.priority,
+  })
+  setOpen(true)
+}
+
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -103,6 +122,16 @@ export default function TasksPage() {
   }, [items, search, status, sortBy])
 
   const onSubmit = (data: TaskFormValues) => {
+  if (editingTaskId !== null) {
+    setItems((prev) =>
+      prev.map((task) =>
+        task.id === editingTaskId
+          ? { ...task, title: data.title, category: data.category, status: data.status, priority: data.priority }
+          : task
+      )
+    )
+    setEditingTaskId(null)
+  } else {
     setItems((prev) => [
       {
         id: Date.now(),
@@ -113,9 +142,11 @@ export default function TasksPage() {
       },
       ...prev,
     ])
-    form.reset()
-    setOpen(false)
   }
+
+  form.reset()
+  setOpen(false)
+}
 
   return (
     <div>
@@ -149,20 +180,32 @@ export default function TasksPage() {
         </select>
       </div>
 
-      <div className="task-list">
-        {visibleTasks.map((task) => (
-          <article key={task.id} className="task-card">
-            <div className="task-card__top">
-              <strong>{task.title}</strong>
-              <span className={`badge badge--${task.status.replace(' ', '-').toLowerCase()}`}>{task.status}</span>
-            </div>
-            <div className="task-card__meta">
-              <span>{task.category}</span>
-              <span>{task.priority}</span>
-            </div>
-          </article>
-        ))}
-      </div>
+<div className="task-list">
+  {visibleTasks.map((task) => (
+     <article key={task.id} className="task-card">
+   <div className="task-card__top">
+      <strong>{task.title}</strong>
+      <span className={`badge badge--${task.status.replace(' ', '-').toLowerCase()}`}>
+        {task.status}
+      </span>
+   </div>
+
+   <div className="task-card__meta">
+     <span>{task.category}</span>
+     <span>{task.priority}</span>
+   </div>
+
+   <div className="task-actions">
+     <button type="button" className="button button--ghost" onClick={() => handleEdit(task)}>
+       Edit
+      </button>
+      <button type="button" className="button button--danger" onClick={() => handleDelete(task.id)}>
+        Delete
+     </button>
+   </div>
+  </article>
+  ))}
+</div>
 
       {open && (
         <div className="modal-backdrop" onClick={() => setOpen(false)}>
