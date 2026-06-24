@@ -1,32 +1,80 @@
-# React + TypeScript + Vite
+# TaskPilot
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+TaskPilot — это современное React-приложение для управления задачами в стиле мини-продукта.  
+В проекте есть Dashboard, список задач, аналитика, поиск, фильтрация, сортировка, добавление, редактирование и удаление задач.
 
-Currently, two official plugins are available:
+## Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 3 страницы: Dashboard, Tasks, Analytics.
+- Поиск, фильтрация и сортировка задач.
+- Добавление и редактирование задач через форму.
+- Валидация формы через React Hook Form и Zod.
+- Сохранение данных в localStorage.
+- Аналитика и графики.
+- Удаление задач.
+- Адаптивный интерфейс.
 
-## React Compiler
+## Стек
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- React Router
+- React Hook Form
+- Zod
+- Recharts
+- Context API
 
-## Expanding the Oxlint configuration
+## Структура проекта
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+src/
+  components/
+  pages/
+  styles/
+  TasksContext.tsx
+  App.tsx
+  main.tsx
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Установка
+
+```bash
+git clone https://github.com/your-username/taskpilot.git
+cd taskpilot
+npm install
+```
+
+## Запуск
+
+```bash
+npm run dev
+```
+
+После запуска открой приложение в браузере по адресу, который покажет Vite.
+
+## Сборка
+
+```bash
+npm run build
+```
+
+## Предпросмотр сборки
+
+```bash
+npm run preview
+```
+
+## Как работает приложение
+
+- Все задачи хранятся в общем состоянии через Context API.
+- Данные автоматически сохраняются в localStorage.
+- Dashboard и Analytics получают актуальные данные из того же источника.
+- После удаления или редактирования задач статистика обновляется автоматически.
+
+## Команда проекта
+
+Проект выполнен в рамках дисциплины «Разработка программных модулей».
+
+## Лицензия
+
+Проект создан для учебных целей.
