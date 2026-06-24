@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMemo, useState, useEffect } from 'react'
 
 type TaskStatus = 'Todo' | 'In progress' | 'Done'
 type TaskPriority = 'High' | 'Medium' | 'Low'
@@ -39,6 +39,19 @@ const priorityRank: Record<TaskPriority, number> = {
   Low: 1,
 }
 
+const loadTasks = () => {
+  if (typeof window === 'undefined') return tasks
+
+  const saved = localStorage.getItem('taskpilot-tasks')
+  if (!saved) return tasks
+
+  try {
+    return JSON.parse(saved) as Task[]
+  } catch {
+    return tasks
+  }
+}
+
 const taskSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters'),
   category: z.string().min(2, 'Category is required'),
@@ -52,8 +65,16 @@ export default function TasksPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<'All' | TaskStatus>('All')
   const [sortBy, setSortBy] = useState<'priority-desc' | 'priority-asc' | 'title-asc'>('priority-desc')
-  const [items, setItems] = useState<Task[]>(tasks)
+  const [items, setItems] = useState<Task[]>(() => loadTasks())
+
+  useEffect(() => {
+    localStorage.setItem('taskpilot-tasks', JSON.stringify(items))
+  }, [items])
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem('taskpilot-tasks', JSON.stringify(items))
+  }, [items])
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
