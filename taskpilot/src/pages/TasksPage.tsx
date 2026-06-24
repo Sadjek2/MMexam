@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 type TaskStatus = 'Todo' | 'In progress' | 'Done'
 type TaskPriority = 'High' | 'Medium' | 'Low'
@@ -36,34 +39,71 @@ const priorityRank: Record<TaskPriority, number> = {
   Low: 1,
 }
 
+const taskSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  category: z.string().min(2, 'Category is required'),
+  status: z.enum(['Todo', 'In progress', 'Done']),
+  priority: z.enum(['High', 'Medium', 'Low']),
+})
+
+type TaskFormValues = z.infer<typeof taskSchema>
+
 export default function TasksPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<'All' | TaskStatus>('All')
   const [sortBy, setSortBy] = useState<'priority-desc' | 'priority-asc' | 'title-asc'>('priority-desc')
+  const [items, setItems] = useState<Task[]>(tasks)
+  const [open, setOpen] = useState(false)
+
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      category: '',
+      status: 'Todo',
+      priority: 'Medium',
+    },
+  })
 
   const visibleTasks = useMemo(() => {
-    const filtered = tasks.filter((task) => {
+    const filtered = items.filter((task) => {
       const matchesSearch = task.title.toLowerCase().includes(search.toLowerCase())
       const matchesStatus = status === 'All' || task.status === status
       return matchesSearch && matchesStatus
     })
 
     const sorted = [...filtered].sort((a, b) => {
-      if (sortBy === 'priority-desc') {
-        return priorityRank[b.priority] - priorityRank[a.priority]
-      }
-      if (sortBy === 'priority-asc') {
-        return priorityRank[a.priority] - priorityRank[b.priority]
-      }
+      if (sortBy === 'priority-desc') return priorityRank[b.priority] - priorityRank[a.priority]
+      if (sortBy === 'priority-asc') return priorityRank[a.priority] - priorityRank[b.priority]
       return a.title.localeCompare(b.title, 'ru')
     })
 
     return sorted
-  }, [search, status, sortBy])
+  }, [items, search, status, sortBy])
+
+  const onSubmit = (data: TaskFormValues) => {
+    setItems((prev) => [
+      {
+        id: Date.now(),
+        title: data.title,
+        category: data.category,
+        status: data.status,
+        priority: data.priority,
+      },
+      ...prev,
+    ])
+    form.reset()
+    setOpen(false)
+  }
 
   return (
     <div>
-      <h2>Tasks</h2>
+      <div className="page-head">
+        <h2>Tasks</h2>
+        <button className="button" onClick={() => setOpen(true)}>
+          Add task
+        </button>
+      </div>
 
       <div className="toolbar">
         <input
@@ -102,6 +142,55 @@ export default function TasksPage() {
           </article>
         ))}
       </div>
+
+      {open && (
+        <div className="modal-backdrop" onClick={() => setOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="page-head">
+              <h3>Add new task</h3>
+              <button className="button button--ghost" onClick={() => setOpen(false)}>
+                Close
+              </button>
+            </div>
+
+            <form className="form" onSubmit={form.handleSubmit(onSubmit)}>
+              <label>
+                Title
+                <input className="input" {...form.register('title')} />
+                {form.formState.errors.title && <span className="error">{form.formState.errors.title.message}</span>}
+              </label>
+
+              <label>
+                Category
+                <input className="input" {...form.register('category')} />
+                {form.formState.errors.category && <span className="error">{form.formState.errors.category.message}</span>}
+              </label>
+
+              <label>
+                Status
+                <select className="input" {...form.register('status')}>
+                  <option value="Todo">Todo</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Done">Done</option>
+                </select>
+              </label>
+
+              <label>
+                Priority
+                <select className="input" {...form.register('priority')}>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </label>
+
+              <button className="button" type="submit">
+                Save task
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
