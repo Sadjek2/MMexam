@@ -84,3 +84,64 @@ a {
   box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
   font-weight: 700;
 }
+
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 200px 220px;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.input {
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  background: white;
+}
+
+.task-list {
+  display: grid;
+  gap: 12px;
+}
+
+.task-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+}
+
+.task-card__top,
+.task-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.task-card__meta {
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+.badge--todo {
+  background: #f59e0b;
+}
+
+.badge--in-progress {
+  background: #3b82f6;
+}
+
+.badge--done {
+  background: #10b981;
+}
