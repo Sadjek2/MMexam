@@ -16,18 +16,56 @@ type TasksContextType = {
   setItems: React.Dispatch<React.SetStateAction<Task[]>>
 }
 
+const defaultTasks: Task[] = [
+  {
+    id: 1,
+    title: 'Design dashboard layout',
+    category: 'Design',
+    status: 'In progress',
+    priority: 'High',
+  },
+  {
+    id: 2,
+    title: 'Set up routing',
+    category: 'Development',
+    status: 'Done',
+    priority: 'Medium',
+  },
+  {
+    id: 3,
+    title: 'Add task filters',
+    category: 'Productivity',
+    status: 'Todo',
+    priority: 'Low',
+  },
+  {
+    id: 4,
+    title: 'Build analytics charts',
+    category: 'Analytics',
+    status: 'In progress',
+    priority: 'High',
+  },
+  {
+    id: 5,
+    title: 'Test localStorage saving',
+    category: 'QA',
+    status: 'Todo',
+    priority: 'Medium',
+  },
+]
+
 const TasksContext = createContext<TasksContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'taskpilot-tasks'
 
 const loadTasks = (): Task[] => {
-  if (typeof window === 'undefined') return []
+  if (typeof window === 'undefined') return defaultTasks
   const saved = localStorage.getItem(STORAGE_KEY)
-  if (!saved) return []
+  if (!saved) return defaultTasks
   try {
     return JSON.parse(saved) as Task[]
   } catch {
-    return []
+    return defaultTasks
   }
 }
 
@@ -48,3 +86,4 @@ export function useTasks() {
   }
   return context
 }
+
